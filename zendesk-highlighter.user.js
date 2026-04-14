@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      5.2
+// @version      5.3
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -140,8 +140,7 @@
         "promise a refund",
         "within 1 day",
         "within a day",
-        "According to your PayPal",
-        "notify"
+        "According to your PayPal"
     ];
 
     const G2_TRIGGERS = [
