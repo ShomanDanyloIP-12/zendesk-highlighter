@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      6.05
+// @version      6.06
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -510,7 +510,8 @@
         "cooling-off",
         "two weeks cool down",
         "widerrufe",
-        "right to request"
+        "right to request",
+        "14 days to cancel"
     ];
 
     function escapeRegex(str) {
