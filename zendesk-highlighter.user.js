@@ -349,7 +349,7 @@
         "contacting PayPal",
         "filing FRAUD",
         "refund from PayPal",
-        "ank will be in contact"
+        "bank will be in contact"
     ];
 
     const DATA_DELETION_TRIGGERS = [
