@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      6.33
+// @version      6.34
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -540,7 +540,8 @@
         "widerrufe",
         "right to request",
         "14 days to cancel",
-        "withdrawal period"
+        "withdrawal period",
+        "legal deadline"
     ];
 
     function escapeRegex(str) {
