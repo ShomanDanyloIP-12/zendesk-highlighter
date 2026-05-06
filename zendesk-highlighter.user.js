@@ -5,8 +5,8 @@
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
-// @downloadURL  https://raw.githubusercontent.com/ShomanDanyloIP-12/zendesk-highlighter/main/zendesk-highlighter.user.js
-// @updateURL    https://raw.githubusercontent.com/ShomanDanyloIP-12/zendesk-highlighter/main/zendesk-highlighter.user.js
+// @downloadURL  https://cdn.jsdelivr.net/gh/ShomanDanyloIP-12/zendesk-highlighter@main/zendesk-highlighter.user.js
+// @updateURL    https://cdn.jsdelivr.net/gh/ShomanDanyloIP-12/zendesk-highlighter@main/zendesk-highlighter.user.js
 // @homepageURL  https://github.com/ShomanDanyloIP-12/zendesk-highlighter
 // @supportURL   https://github.com/ShomanDanyloIP-12/zendesk-highlighter/issues
 // ==/UserScript==
