@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      6.53
+// @version      6.54
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -373,7 +373,8 @@
         "fight these charges",
         "with the credit union",
         "contest these charges",
-        "notify my bank"
+        "notify my bank",
+        "to my credit card company"
     ];
 
     const DATA_DELETION_TRIGGERS = [
