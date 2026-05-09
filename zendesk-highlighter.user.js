@@ -517,7 +517,8 @@
         "termination of my acount",
         "details scrubbed",
         "close that account",
-        "cancelar mi cuenta"
+        "cancelar mi cuenta",
+        "account to be discatived"
     ];
 
     const POLICIES_TRIGGERS = [
