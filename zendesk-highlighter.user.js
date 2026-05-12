@@ -735,7 +735,7 @@
 
         panel.style.position = 'fixed';
         panel.style.right = '168px';
-        panel.style.bottom = '54px';
+        panel.style.bottom = '56px';
         panel.style.zIndex = '999999';
         panel.style.padding = '10px 12px';
         panel.style.borderRadius = '10px';
