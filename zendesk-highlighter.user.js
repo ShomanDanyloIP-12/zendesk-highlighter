@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      6.71
+// @version      6.72
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -735,7 +735,7 @@
 
         panel.style.position = 'fixed';
         panel.style.right = '168px';
-        panel.style.bottom = '50px';
+        panel.style.bottom = '54px';
         panel.style.zIndex = '999999';
         panel.style.padding = '10px 12px';
         panel.style.borderRadius = '10px';
