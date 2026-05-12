@@ -734,7 +734,7 @@
         panel.id = 'zd-alert-panel';
 
         panel.style.position = 'fixed';
-        panel.style.right = '48px';
+        panel.style.right = '168px';
         panel.style.bottom = '50px';
         panel.style.zIndex = '999999';
         panel.style.padding = '10px 12px';
