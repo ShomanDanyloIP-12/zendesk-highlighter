@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      6.69
+// @version      6.70
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -20,7 +20,8 @@
         dataDeletion: "background: rgba(139, 94, 60, 0.25); border: 2px solid #8b5e3c; border-radius: 4px;",
         policies: "background: rgba(255, 105, 180, 0.22); border: 2px solid #ff69b4; border-radius: 4px;",
         card: "background: rgba(155, 89, 255, 0.18); border: 2px solid #9b59ff; border-radius: 4px;",
-        russianEmail: "background: rgba(255, 152, 0, 0.18); border: 2px solid #ff9800; border-radius: 4px;"
+        russianEmail: "background: rgba(255, 152, 0, 0.18); border: 2px solid #ff9800; border-radius: 4px;",
+        otherEmail: "background: rgba(0, 184, 212, 0.18); border: 2px solid #00b8d4; border-radius: 4px;"
     };
 
     const RUSSIAN_EMAIL_DOMAINS = [
@@ -581,6 +582,57 @@
         "cooling off"
     ];
 
+    const IGNORED_OTHER_EMAILS = new Set([
+        'billing@pdf.contact',
+        'billing@pdfguru.com',
+        'billing@pdfleader.com',
+        'billing@pdfmaster.app',
+        'contact@pdfguru.com',
+        'contact@pdfmaster.app',
+        'customer.care@pdfguru.com',
+        'customer.care@pdfleader.com',
+        'customer.care@thebestpdf.com',
+        'dmytro.kanievskyi@pdfguru.com',
+        'feedback@pdf.contact',
+        'feedback@pdfguru.com',
+        'feedback@thebestpdf.com',
+        'headsupport@pdfleader.com',
+        'headsupport@resumeleader.com',
+        'help@leaderdocs.limited',
+        'help@pdf.contact',
+        'help@pdfguru.com',
+        'help@pdfleader.com',
+        'help@pdfmaster.app',
+        'help@thebestpdf.com',
+        'info@pdfguru.com',
+        'info@pdfmaster.app',
+        'info@thebestpdf.com',
+        'marketing@thebestpdf.com',
+        'paypal@resumeleader.com',
+        'paypal@thebestpdf.com',
+        'refund@leaderdocs.limited',
+        'refund@pdf.contact',
+        'refund@pdfguru.com',
+        'refund@pdfleader.com',
+        'refund@pdfmaster.app',
+        'refund@thebestpdf.com',
+        'sales@thebestpdf.com',
+        'social@pdfguru.com',
+        'social@pdfleader.com',
+        'social@thebestpdf.com',
+        'support.ua@pdfguru.com',
+        'support@leaderdocs.limited',
+        'support@pdf.contact',
+        'support@pdfcalls2.zendesk.com',
+        'support@pdfguru.com',
+        'support@pdfguru.zendesk.com',
+        'support@pdfleader.com',
+        'support@pdfmaster.app',
+        'support@pdfvoicemails.zendesk.com',
+        'support@resumeleader.com',
+        'support@thebestpdf.com'
+    ]);
+
     function escapeRegex(str) {
         return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
@@ -624,7 +676,8 @@
         dataDeletion: 'zd-hl-data-deletion',
         policies: 'zd-hl-policies',
         card: 'zd-hl-card',
-        russianEmail: 'zd-hl-russian-email'
+        russianEmail: 'zd-hl-russian-email',
+        otherEmail: 'zd-hl-other-email'
     };
 
     function ensureHighlightStyles() {
@@ -661,6 +714,11 @@
         ::highlight(${HIGHLIGHT_NAMES.russianEmail}) {
             background: rgba(255, 152, 0, 0.18);
             text-decoration: underline 2px rgba(255, 152, 0, 0.95);
+        }
+
+        ::highlight(${HIGHLIGHT_NAMES.otherEmail}) {
+            background: rgba(0, 184, 212, 0.18);
+            text-decoration: underline 2px rgba(0, 184, 212, 0.95);
         }
     `;
         document.head.appendChild(style);
@@ -717,6 +775,56 @@
         'gi'
     );
 
+    const ANY_EMAIL_REGEX = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
+
+    function normalizeEmail(email) {
+        return (email || '').trim().toLowerCase();
+    }
+
+    function isVisibleElement(el) {
+        if (!el) return false;
+
+        const rect = el.getBoundingClientRect();
+
+        return (
+            rect.width > 0 &&
+            rect.height > 0 &&
+            rect.bottom > 0 &&
+            rect.right > 0 &&
+            rect.top < window.innerHeight &&
+            rect.left < window.innerWidth
+        );
+    }
+
+    function getSidebarEmail() {
+        const emailRows = [...document.querySelectorAll('[data-garden-id="grid.row"]')]
+            .filter(isVisibleElement)
+            .reverse();
+
+        for (const row of emailRows) {
+            const rowText = row.textContent || '';
+
+            if (!rowText.includes('Email')) continue;
+
+            const emailValueEl = row.querySelector('[title*="@"]');
+
+            const rawValue =
+                  emailValueEl?.getAttribute('title') ||
+                  emailValueEl?.textContent ||
+                  rowText ||
+                  '';
+
+            ANY_EMAIL_REGEX.lastIndex = 0;
+            const match = ANY_EMAIL_REGEX.exec(rawValue);
+
+            if (match) {
+                return normalizeEmail(match[0]);
+            }
+        }
+
+        return '';
+    }
+
     function buildHighlightsForComments() {
         if (!window.CSS || !CSS.highlights || typeof Highlight === 'undefined') {
             return;
@@ -734,8 +842,43 @@
             dataDeletion: new Highlight(),
             policies: new Highlight(),
             card: new Highlight(),
-            russianEmail: new Highlight()
+            russianEmail: new Highlight(),
+            otherEmail: new Highlight()
         };
+
+        const ticketId = getCurrentTicketId();
+
+        if (ticketId && ticketId !== lastTicketId) {
+            lastTicketId = ticketId;
+        }
+
+        const cachedSidebarEmail = ticketId ? ticketEmailCache.get(ticketId) : '';
+        const freshSidebarEmail = getSidebarEmail();
+
+        let sidebarEmail = cachedSidebarEmail || '';
+
+        if (!sidebarEmail) {
+            if (
+                freshSidebarEmail &&
+                freshSidebarEmail !== lastSidebarEmail
+            ) {
+                sidebarEmail = freshSidebarEmail;
+
+                if (ticketId) {
+                    ticketEmailCache.set(ticketId, sidebarEmail);
+                }
+
+                lastSidebarEmail = sidebarEmail;
+            } else {
+                setTimeout(scanAll, 1000);
+                return;
+            }
+        }
+
+        if (!sidebarEmail) {
+            setTimeout(scanAll, 1000);
+            return;
+        }
 
         document.querySelectorAll('.zd-comment').forEach(commentEl => {
             if (!commentEl) return;
@@ -788,6 +931,32 @@
 
                     if (RUSSIAN_EMAIL_REGEX.lastIndex === russianEmailMatch.index) {
                         RUSSIAN_EMAIL_REGEX.lastIndex++;
+                    }
+                }
+
+                if (sidebarEmail) {
+                    ANY_EMAIL_REGEX.lastIndex = 0;
+
+                    let otherEmailMatch;
+                    while ((otherEmailMatch = ANY_EMAIL_REGEX.exec(text)) !== null) {
+                        const matchedText = otherEmailMatch[0];
+                        const normalizedFoundEmail = normalizeEmail(matchedText);
+
+                        if (
+                            matchedText &&
+                            normalizedFoundEmail !== sidebarEmail &&
+                            !IGNORED_OTHER_EMAILS.has(normalizedFoundEmail)
+                        ) {
+                            const range = new Range();
+                            range.setStart(textNode, otherEmailMatch.index);
+                            range.setEnd(textNode, otherEmailMatch.index + matchedText.length);
+
+                            buckets.otherEmail.add(range);
+                        }
+
+                        if (ANY_EMAIL_REGEX.lastIndex === otherEmailMatch.index) {
+                            ANY_EMAIL_REGEX.lastIndex++;
+                        }
                     }
                 }
 
@@ -849,10 +1018,29 @@
 
         const value = el.value || '';
 
+        const ticketId = getCurrentTicketId();
+        const sidebarEmail = ticketId ? ticketEmailCache.get(ticketId) || getSidebarEmail() : getSidebarEmail();
+
+        ANY_EMAIL_REGEX.lastIndex = 0;
+        const foundEmailMatch = ANY_EMAIL_REGEX.exec(value);
+
+        const foundEmail = foundEmailMatch
+        ? normalizeEmail(foundEmailMatch[0])
+        : '';
+
+        const isOtherEmail =
+              foundEmail &&
+              sidebarEmail &&
+              foundEmail !== sidebarEmail &&
+              !IGNORED_OTHER_EMAILS.has(foundEmail);
+
         RUSSIAN_EMAIL_REGEX.lastIndex = 0;
-        const matchedStyle = RUSSIAN_EMAIL_REGEX.test(value)
-            ? COLORS.russianEmail
-            : getMatchedStyle(value);
+        const matchedStyle =
+              RUSSIAN_EMAIL_REGEX.test(value)
+                  ? COLORS.russianEmail
+                  : isOtherEmail
+                      ? COLORS.otherEmail
+                      : getMatchedStyle(value);
 
         if (!matchedStyle) {
             el.style.background = '';
@@ -930,12 +1118,25 @@
     }
 
     let scanTimer = null;
+    const ticketEmailCache = new Map();
+    let lastTicketId = '';
+    let lastSidebarEmail = '';
+
+    function getCurrentTicketId() {
+        const match = location.href.match(/\/tickets\/(\d+)/);
+        return match ? match[1] : '';
+    }
 
     function scheduleScanAll() {
         clearTimeout(scanTimer);
+
         scanTimer = setTimeout(() => {
             scanAll();
-        }, 120);
+
+            setTimeout(scanAll, 700);
+            setTimeout(scanAll, 1800);
+            setTimeout(scanAll, 3500);
+        }, 250);
     }
 
     const observer = new MutationObserver(mutations => {
@@ -952,11 +1153,6 @@
             scheduleScanAll();
         }
     });
-
-    observer.observe(document.body, { childList: true, subtree: true });
-
-    setTimeout(scanAll, 1500);
-    setTimeout(scanAll, 3000);
 
     observer.observe(document.body, { childList: true, subtree: true });
 
