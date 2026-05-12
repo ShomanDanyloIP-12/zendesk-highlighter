@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      6.68
+// @version      6.69
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -19,8 +19,19 @@
         g2: "background: rgba(250, 231, 17, 0.25); border: 2px solid #fae711; border-radius: 4px;",
         dataDeletion: "background: rgba(139, 94, 60, 0.25); border: 2px solid #8b5e3c; border-radius: 4px;",
         policies: "background: rgba(255, 105, 180, 0.22); border: 2px solid #ff69b4; border-radius: 4px;",
-        card: "background: rgba(155, 89, 255, 0.18); border: 2px solid #9b59ff; border-radius: 4px;"
+        card: "background: rgba(155, 89, 255, 0.18); border: 2px solid #9b59ff; border-radius: 4px;",
+        russianEmail: "background: rgba(255, 152, 0, 0.18); border: 2px solid #ff9800; border-radius: 4px;"
     };
+
+    const RUSSIAN_EMAIL_DOMAINS = [
+        'mail.ru',
+        'bk.ru',
+        'inbox.ru',
+        'list.ru',
+        'yandex.ru',
+        'ya.ru',
+        'rambler.ru'
+    ];
 
     const G1_TRIGGERS = [
         "Competition and Consumer Commission",
@@ -612,7 +623,8 @@
         g2: 'zd-hl-g2',
         dataDeletion: 'zd-hl-data-deletion',
         policies: 'zd-hl-policies',
-        card: 'zd-hl-card'
+        card: 'zd-hl-card',
+        russianEmail: 'zd-hl-russian-email'
     };
 
     function ensureHighlightStyles() {
@@ -644,6 +656,11 @@
         ::highlight(${HIGHLIGHT_NAMES.card}) {
             background: rgba(155, 89, 255, 0.18);
             text-decoration: underline 2px rgba(155, 89, 255, 0.95);
+        }
+
+        ::highlight(${HIGHLIGHT_NAMES.russianEmail}) {
+            background: rgba(255, 152, 0, 0.18);
+            text-decoration: underline 2px rgba(255, 152, 0, 0.95);
         }
     `;
         document.head.appendChild(style);
@@ -695,6 +712,11 @@
         return digits.length === 16;
     }
 
+    const RUSSIAN_EMAIL_REGEX = new RegExp(
+        String.raw`\b[A-Z0-9._%+-]+@(?:${RUSSIAN_EMAIL_DOMAINS.map(escapeRegex).join('|')})\b`,
+        'gi'
+    );
+
     function buildHighlightsForComments() {
         if (!window.CSS || !CSS.highlights || typeof Highlight === 'undefined') {
             return;
@@ -711,7 +733,8 @@
             g2: new Highlight(),
             dataDeletion: new Highlight(),
             policies: new Highlight(),
-            card: new Highlight()
+            card: new Highlight(),
+            russianEmail: new Highlight()
         };
 
         document.querySelectorAll('.zd-comment').forEach(commentEl => {
@@ -746,6 +769,25 @@
 
                     if (FULL_CARD_REGEX.lastIndex === cardMatch.index) {
                         FULL_CARD_REGEX.lastIndex++;
+                    }
+                }
+
+                RUSSIAN_EMAIL_REGEX.lastIndex = 0;
+
+                let russianEmailMatch;
+                while ((russianEmailMatch = RUSSIAN_EMAIL_REGEX.exec(text)) !== null) {
+                    const matchedText = russianEmailMatch[0];
+
+                    if (matchedText) {
+                        const range = new Range();
+                        range.setStart(textNode, russianEmailMatch.index);
+                        range.setEnd(textNode, russianEmailMatch.index + matchedText.length);
+
+                        buckets.russianEmail.add(range);
+                    }
+
+                    if (RUSSIAN_EMAIL_REGEX.lastIndex === russianEmailMatch.index) {
+                        RUSSIAN_EMAIL_REGEX.lastIndex++;
                     }
                 }
 
@@ -806,7 +848,11 @@
         if (!el) return;
 
         const value = el.value || '';
-        const matchedStyle = getMatchedStyle(value);
+
+        RUSSIAN_EMAIL_REGEX.lastIndex = 0;
+        const matchedStyle = RUSSIAN_EMAIL_REGEX.test(value)
+            ? COLORS.russianEmail
+            : getMatchedStyle(value);
 
         if (!matchedStyle) {
             el.style.background = '';
@@ -825,6 +871,31 @@
         el.style.boxShadow = '0 0 0 1px rgba(0,0,0,0.05)';
     }
 
+    function highlightRussianEmailField(el) {
+        if (!el) return;
+
+        const value = el.textContent || el.getAttribute('title') || '';
+        RUSSIAN_EMAIL_REGEX.lastIndex = 0;
+
+        const isRussianEmail = RUSSIAN_EMAIL_REGEX.test(value);
+
+        if (!isRussianEmail) {
+            el.style.background = '';
+            el.style.border = '';
+            el.style.borderRadius = '';
+            el.style.padding = '';
+            el.style.boxShadow = '';
+            return;
+        }
+
+        el.style.background = 'rgba(255, 152, 0, 0.18)';
+        el.style.border = '2px solid #ff9800';
+        el.style.borderRadius = '4px';
+        el.style.padding = '2px 4px';
+        el.style.boxShadow = '0 0 0 1px rgba(0,0,0,0.05)';
+        el.style.display = 'inline-block';
+    }
+
     function scanComments() {
         buildHighlightsForComments();
     }
@@ -837,6 +908,19 @@
                 el.addEventListener('input', () => highlightSubjectInput(el));
                 el.dataset.subjectListenerAttached = 'true';
             }
+        });
+
+        document.querySelectorAll(`
+            [data-garden-id="email.value"],
+            [title*="@mail.ru"],
+            [title*="@bk.ru"],
+            [title*="@inbox.ru"],
+            [title*="@list.ru"],
+            [title*="@yandex.ru"],
+            [title*="@ya.ru"],
+            [title*="@rambler.ru"]
+        `).forEach(el => {
+            highlightRussianEmailField(el);
         });
     }
 
