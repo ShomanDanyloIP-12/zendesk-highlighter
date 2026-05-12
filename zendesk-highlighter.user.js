@@ -724,6 +724,139 @@
         document.head.appendChild(style);
     }
 
+    function ensureAlertPanel() {
+        let panel = document.getElementById('zd-alert-panel');
+
+        if (panel) return panel;
+
+        panel = document.createElement('div');
+        panel.id = 'zd-alert-panel';
+
+        panel.style.position = 'fixed';
+        panel.style.right = '48px';
+        panel.style.bottom = '50px';
+        panel.style.zIndex = '999999';
+        panel.style.padding = '10px 12px';
+        panel.style.borderRadius = '10px';
+        panel.style.background = 'rgba(32, 33, 36, 0.92)';
+        panel.style.color = '#ffffff';
+        panel.style.fontSize = '12px';
+        panel.style.fontFamily = 'Arial, sans-serif';
+        panel.style.boxShadow = '0 4px 14px rgba(0,0,0,0.25)';
+        panel.style.pointerEvents = 'none';
+
+        panel.innerHTML = `
+            <div style="font-weight: 700; margin-bottom: 6px;">ZD Alerts</div>
+            <div data-zd-alert-row="g1">G1: —</div>
+            <div data-zd-alert-row="g2">G2: —</div>
+            <div data-zd-alert-row="dataDeletion">Deletion: —</div>
+            <div data-zd-alert-row="policies">Policies: —</div>
+            <div data-zd-alert-row="russianEmail">Russian email: —</div>
+            <div data-zd-alert-row="card">Full card: —</div>
+        `;
+
+        document.body.appendChild(panel);
+
+        return panel;
+    }
+
+    function updateAlertPanel(flags) {
+        const panel = ensureAlertPanel();
+
+        const rows = {
+            g1: {
+                label: 'G1',
+                activeColor: '#ff7849'
+            },
+            g2: {
+                label: 'G2',
+                activeColor: '#ffe066'
+            },
+            dataDeletion: {
+                label: 'Deletion',
+                activeColor: '#c8a27a'
+            },
+            policies: {
+                label: 'Policies',
+                activeColor: '#ff7bc3'
+            },
+            russianEmail: {
+                label: 'Russian email',
+                activeColor: '#ff9800'
+            },
+            card: {
+                label: 'Full card',
+                activeColor: '#b388ff'
+            }
+        };
+
+        Object.entries(rows).forEach(([key, config]) => {
+            const row = panel.querySelector(`[data-zd-alert-row="${key}"]`);
+
+            if (!row) return;
+
+            const isActive = !!flags[key];
+
+            row.textContent = `${config.label}: ${isActive ? '⚠️' : '—'}`;
+
+            if (isActive) {
+                row.style.color = config.activeColor;
+                row.style.fontWeight = '700';
+                row.style.opacity = '1';
+            } else {
+                row.style.color = '#9aa0a6';
+                row.style.fontWeight = '400';
+                row.style.opacity = '0.6';
+            }
+        });
+    }
+
+    function scanSubjectAndSidebarFlags(flags) {
+    document.querySelectorAll('input[data-test-id="omni-header-subject"]').forEach(el => {
+        const value = el.value || '';
+
+        RUSSIAN_EMAIL_REGEX.lastIndex = 0;
+        if (RUSSIAN_EMAIL_REGEX.test(value)) {
+            flags.russianEmail = true;
+        }
+
+        allPatterns.forEach(item => {
+            if (!flags.hasOwnProperty(item.styleKey)) return;
+
+            item.regex.lastIndex = 0;
+            if (item.regex.test(value)) {
+                flags[item.styleKey] = true;
+            }
+        });
+    });
+
+    document.querySelectorAll(`
+        [data-garden-id="email.value"],
+        [title*="@mail.ru"],
+        [title*="@bk.ru"],
+        [title*="@inbox.ru"],
+        [title*="@list.ru"],
+        [title*="@yandex.ru"],
+        [title*="@ya.ru"],
+        [title*="@rambler.ru"]
+    `).forEach(el => {
+        const value = el.textContent || el.getAttribute('title') || '';
+
+        RUSSIAN_EMAIL_REGEX.lastIndex = 0;
+        if (RUSSIAN_EMAIL_REGEX.test(value)) {
+            flags.russianEmail = true;
+        }
+    });
+}
+
+    function isCustomerComment(commentEl) {
+        const itemEl = commentEl.closest('[data-test-id="omni-log-item-message"]');
+
+        if (!itemEl) return false;
+
+        return itemEl.getAttribute('type') === 'end-user';
+    }
+
     function isEditableElement(element) {
         if (!element) return false;
 
@@ -846,6 +979,17 @@
             otherEmail: new Highlight()
         };
 
+        const foundFlags = {
+            g1: false,
+            g2: false,
+            dataDeletion: false,
+            policies: false,
+            russianEmail: false,
+            card: false
+        };
+
+        scanSubjectAndSidebarFlags(foundFlags);
+
         const ticketId = getCurrentTicketId();
 
         if (ticketId && ticketId !== lastTicketId) {
@@ -882,6 +1026,7 @@
 
         document.querySelectorAll('.zd-comment').forEach(commentEl => {
             if (!commentEl) return;
+            if (!isCustomerComment(commentEl)) return;
 
             if (
                 commentEl.matches?.('[contenteditable="true"], textarea, input, [role="textbox"], .zd-editor, .zendesk-editor') ||
@@ -908,6 +1053,7 @@
                         range.setEnd(textNode, cardMatch.index + matchedText.length);
 
                         buckets.card.add(range);
+                        foundFlags.card = true;
                     }
 
                     if (FULL_CARD_REGEX.lastIndex === cardMatch.index) {
@@ -927,6 +1073,7 @@
                         range.setEnd(textNode, russianEmailMatch.index + matchedText.length);
 
                         buckets.russianEmail.add(range);
+                        foundFlags.russianEmail = true;
                     }
 
                     if (RUSSIAN_EMAIL_REGEX.lastIndex === russianEmailMatch.index) {
@@ -977,6 +1124,9 @@
                         range.setEnd(textNode, match.index + matchedText.length);
 
                         buckets[item.styleKey].add(range);
+                        if (foundFlags.hasOwnProperty(item.styleKey)) {
+                            foundFlags[item.styleKey] = true;
+                        }
 
                         if (re.lastIndex === match.index) {
                             re.lastIndex++;
@@ -985,6 +1135,8 @@
                 });
             });
         });
+
+        updateAlertPanel(foundFlags);
 
         Object.entries(buckets).forEach(([styleKey, highlight]) => {
             CSS.highlights.set(HIGHLIGHT_NAMES[styleKey], highlight);
@@ -1035,12 +1187,16 @@
               !IGNORED_OTHER_EMAILS.has(foundEmail);
 
         RUSSIAN_EMAIL_REGEX.lastIndex = 0;
+        const triggerStyle = getMatchedStyle(value);
+
         const matchedStyle =
               RUSSIAN_EMAIL_REGEX.test(value)
                   ? COLORS.russianEmail
-                  : isOtherEmail
-                      ? COLORS.otherEmail
-                      : getMatchedStyle(value);
+                  : triggerStyle
+                      ? triggerStyle
+                      : isOtherEmail
+                          ? COLORS.otherEmail
+                          : null;
 
         if (!matchedStyle) {
             el.style.background = '';
@@ -1113,6 +1269,19 @@
     }
 
     function scanAll() {
+        if (!getCurrentTicketId()) {
+            updateAlertPanel({
+                g1: false,
+                g2: false,
+                dataDeletion: false,
+                policies: false,
+                russianEmail: false,
+                card: false
+            });
+
+            return;
+        }
+
         scanComments();
         scanSubjects();
     }
