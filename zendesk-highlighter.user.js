@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      6.67
+// @version      6.68
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -18,7 +18,8 @@
         g1: "background: rgba(245, 41, 27, 0.25); border: 2px solid #f5291b; border-radius: 4px;",
         g2: "background: rgba(250, 231, 17, 0.25); border: 2px solid #fae711; border-radius: 4px;",
         dataDeletion: "background: rgba(139, 94, 60, 0.25); border: 2px solid #8b5e3c; border-radius: 4px;",
-        policies: "background: rgba(255, 105, 180, 0.22); border: 2px solid #ff69b4; border-radius: 4px;"
+        policies: "background: rgba(255, 105, 180, 0.22); border: 2px solid #ff69b4; border-radius: 4px;",
+        card: "background: rgba(155, 89, 255, 0.18); border: 2px solid #9b59ff; border-radius: 4px;"
     };
 
     const G1_TRIGGERS = [
@@ -610,7 +611,8 @@
         g1: 'zd-hl-g1',
         g2: 'zd-hl-g2',
         dataDeletion: 'zd-hl-data-deletion',
-        policies: 'zd-hl-policies'
+        policies: 'zd-hl-policies',
+        card: 'zd-hl-card'
     };
 
     function ensureHighlightStyles() {
@@ -637,6 +639,11 @@
         ::highlight(${HIGHLIGHT_NAMES.policies}) {
             background: rgba(255, 105, 180, 0.22);
             text-decoration: underline 2px rgba(255, 105, 180, 0.95);
+        }
+
+        ::highlight(${HIGHLIGHT_NAMES.card}) {
+            background: rgba(155, 89, 255, 0.18);
+            text-decoration: underline 2px rgba(155, 89, 255, 0.95);
         }
     `;
         document.head.appendChild(style);
@@ -677,6 +684,17 @@
         return textNodes;
     }
 
+    const FULL_CARD_REGEX = /(?<!\d)(?:\d[\s.-]*){16}(?!\d)/g;
+
+    function getOnlyDigits(text) {
+        return text.replace(/\D/g, '');
+    }
+
+    function isFullCardCandidate(text) {
+        const digits = getOnlyDigits(text);
+        return digits.length === 16;
+    }
+
     function buildHighlightsForComments() {
         if (!window.CSS || !CSS.highlights || typeof Highlight === 'undefined') {
             return;
@@ -692,7 +710,8 @@
             g1: new Highlight(),
             g2: new Highlight(),
             dataDeletion: new Highlight(),
-            policies: new Highlight()
+            policies: new Highlight(),
+            card: new Highlight()
         };
 
         document.querySelectorAll('.zd-comment').forEach(commentEl => {
@@ -710,6 +729,25 @@
             textNodes.forEach(textNode => {
                 const text = textNode.nodeValue;
                 if (!text) return;
+
+                FULL_CARD_REGEX.lastIndex = 0;
+
+                let cardMatch;
+                while ((cardMatch = FULL_CARD_REGEX.exec(text)) !== null) {
+                    const matchedText = cardMatch[0];
+
+                    if (matchedText && isFullCardCandidate(matchedText)) {
+                        const range = new Range();
+                        range.setStart(textNode, cardMatch.index);
+                        range.setEnd(textNode, cardMatch.index + matchedText.length);
+
+                        buckets.card.add(range);
+                    }
+
+                    if (FULL_CARD_REGEX.lastIndex === cardMatch.index) {
+                        FULL_CARD_REGEX.lastIndex++;
+                    }
+                }
 
                 allPatterns.forEach(item => {
                     const flags = item.regex.flags.includes('g')
