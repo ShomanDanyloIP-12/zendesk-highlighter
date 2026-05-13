@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      6.79
+// @version      6.80
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -938,27 +938,22 @@
     }
 
     function getSidebarEmail() {
-        const emailRows = [...document.querySelectorAll('[data-garden-id="grid.row"]')]
-            .filter(isVisibleElement)
-            .reverse();
+        const emailEls = [
+            ...document.querySelectorAll('[data-garden-id="email.value"]'),
+            ...document.querySelectorAll('[title*="@"]')
+        ].filter(isVisibleElement);
 
-        for (const row of emailRows) {
-            const rowText = row.textContent || '';
-
-            if (!rowText.includes('Email')) continue;
-
-            const emailValueEl = row.querySelector('[title*="@"]');
-
-            const rawValue =
-                  emailValueEl?.getAttribute('title') ||
-                  emailValueEl?.textContent ||
-                  rowText ||
+        for (const el of emailEls) {
+            const raw =
+                  el.getAttribute('title') ||
+                  el.textContent ||
                   '';
 
             ANY_EMAIL_REGEX.lastIndex = 0;
-            const match = ANY_EMAIL_REGEX.exec(rawValue);
 
-            if (match) {
+            const match = raw.match(ANY_EMAIL_REGEX);
+
+            if (match && match[0]) {
                 return normalizeEmail(match[0]);
             }
         }
