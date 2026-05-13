@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      6.80
+// @version      6.81
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -638,7 +638,8 @@
         'support@pdfmaster.app',
         'support@pdfvoicemails.zendesk.com',
         'support@resumeleader.com',
-        'support@thebestpdf.com'
+        'support@thebestpdf.com',
+        'suport@pdfguru.com'
     ]);
 
     function escapeRegex(str) {
@@ -937,25 +938,28 @@
         );
     }
 
-    function getSidebarEmail() {
-        const emailEls = [
-            ...document.querySelectorAll('[data-garden-id="email.value"]'),
-            ...document.querySelectorAll('[title*="@"]')
-        ].filter(isVisibleElement);
+    function getSidebarEmail(ticketId = getCurrentTicketId()) {
+        if (!ticketId) return '';
 
-        for (const el of emailEls) {
-            const raw =
-                  el.getAttribute('title') ||
-                  el.textContent ||
-                  '';
+        const panel = document.getElementById(`customer-context-user-panel-${ticketId}`);
 
-            ANY_EMAIL_REGEX.lastIndex = 0;
+        if (!panel || !isVisibleElement(panel)) {
+            return '';
+        }
 
-            const match = raw.match(ANY_EMAIL_REGEX);
+        const emailValueEl = panel.querySelector('[data-test-id="email-value-test-id"]');
 
-            if (match && match[0]) {
-                return normalizeEmail(match[0]);
-            }
+        const rawValue =
+              emailValueEl?.getAttribute('title') ||
+              emailValueEl?.textContent ||
+              '';
+
+        ANY_EMAIL_REGEX.lastIndex = 0;
+
+        const match = rawValue.match(ANY_EMAIL_REGEX);
+
+        if (match && match[0]) {
+            return normalizeEmail(match[0]);
         }
 
         return '';
@@ -995,19 +999,51 @@
 
         const ticketId = getCurrentTicketId();
 
-        if (ticketId && ticketId !== lastTicketId) {
+        const isNewTicket = ticketId && ticketId !== lastTicketId;
+
+        if (isNewTicket) {
+            previousTicketId = lastTicketId;
             lastTicketId = ticketId;
         }
 
         const cachedSidebarEmail = ticketId ? ticketEmailCache.get(ticketId) : '';
-        const freshSidebarEmail = getSidebarEmail();
+        const freshSidebarEmail = getSidebarEmail(ticketId);
 
         let sidebarEmail = cachedSidebarEmail || '';
 
-        if (!sidebarEmail) {
+        console.log('OTHER EMAIL DEBUG', {
+            ticketId,
+            lastTicketId,
+            previousTicketId,
+            isNewTicket,
+            cachedSidebarEmail,
+            freshSidebarEmail,
+            lastSidebarEmail,
+            sidebarEmailBeforeDecision: sidebarEmail
+        });
+
+        if (!sidebarEmail && freshSidebarEmail) {
+
+            const sameCustomerHistoryTransition =
+                  isNewTicket &&
+                  freshSidebarEmail === lastSidebarEmail;
+
+            const completelyNewCustomer =
+                  freshSidebarEmail !== lastSidebarEmail;
+
+            console.log('OTHER EMAIL DECISION', {
+                ticketId,
+                freshSidebarEmail,
+                lastSidebarEmail,
+                isNewTicket,
+                sameCustomerHistoryTransition,
+                completelyNewCustomer,
+                willAcceptSidebarEmail: sameCustomerHistoryTransition || completelyNewCustomer
+            });
+
             if (
-                freshSidebarEmail &&
-                freshSidebarEmail !== lastSidebarEmail
+                sameCustomerHistoryTransition ||
+                completelyNewCustomer
             ) {
                 sidebarEmail = freshSidebarEmail;
 
@@ -1016,15 +1052,7 @@
                 }
 
                 lastSidebarEmail = sidebarEmail;
-            } else {
-                setTimeout(scanAll, 1000);
-                return;
             }
-        }
-
-        if (!sidebarEmail) {
-            setTimeout(scanAll, 1000);
-            return;
         }
 
         document.querySelectorAll('.zd-comment').forEach(commentEl => {
@@ -1102,6 +1130,15 @@
                             range.setEnd(textNode, otherEmailMatch.index + matchedText.length);
 
                             buckets.otherEmail.add(range);
+
+                            console.log('OTHER EMAIL ADDED', {
+                                ticketId,
+                                sidebarEmail,
+                                matchedText,
+                                normalizedFoundEmail,
+                                currentUrl: location.href,
+                                subject: document.querySelector('input[data-test-id="omni-header-subject"]')?.value || ''
+                            });
                         }
 
                         if (ANY_EMAIL_REGEX.lastIndex === otherEmailMatch.index) {
@@ -1174,7 +1211,9 @@
         const value = el.value || '';
 
         const ticketId = getCurrentTicketId();
-        const sidebarEmail = ticketId ? ticketEmailCache.get(ticketId) || getSidebarEmail() : getSidebarEmail();
+        const sidebarEmail = ticketId
+            ? ticketEmailCache.get(ticketId) || getSidebarEmail(ticketId)
+            : getSidebarEmail();
 
         ANY_EMAIL_REGEX.lastIndex = 0;
         const foundEmailMatch = ANY_EMAIL_REGEX.exec(value);
@@ -1293,6 +1332,7 @@
     const ticketEmailCache = new Map();
     let lastTicketId = '';
     let lastSidebarEmail = '';
+    let previousTicketId = '';
 
     function getCurrentTicketId() {
         const match = location.href.match(/\/tickets\/(\d+)/);
