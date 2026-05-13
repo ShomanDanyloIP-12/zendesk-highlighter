@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      6.81
+// @version      6.82
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -752,10 +752,16 @@
         panel.style.fontSize = '12px';
         panel.style.fontFamily = 'Arial, sans-serif';
         panel.style.boxShadow = '0 4px 14px rgba(0,0,0,0.25)';
-        panel.style.pointerEvents = 'none';
+        panel.style.pointerEvents = 'auto';
+        panel.style.userSelect = 'none';
 
         panel.innerHTML = `
-            <div style="font-weight: 700; margin-bottom: 6px;">ZD Alerts</div>
+            <div
+                data-zd-alert-drag-handle="true"
+                style="font-weight: 700; margin-bottom: 6px; cursor: move;"
+            >
+                ZD Alerts
+            </div>
             <div data-zd-alert-row="g1">G1: —</div>
             <div data-zd-alert-row="g2">G2: —</div>
             <div data-zd-alert-row="dataDeletion">Deletion: —</div>
@@ -766,7 +772,53 @@
 
         document.body.appendChild(panel);
 
+        makeAlertPanelDraggable(panel);
+
         return panel;
+    }
+
+    function makeAlertPanelDraggable(panel) {
+        const handle = panel.querySelector('[data-zd-alert-drag-handle="true"]');
+
+        if (!handle) return;
+
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+        let startLeft = 0;
+        let startTop = 0;
+
+        handle.addEventListener('mousedown', event => {
+            isDragging = true;
+
+            const rect = panel.getBoundingClientRect();
+
+            startX = event.clientX;
+            startY = event.clientY;
+            startLeft = rect.left;
+            startTop = rect.top;
+
+            panel.style.left = `${rect.left}px`;
+            panel.style.top = `${rect.top}px`;
+            panel.style.right = 'auto';
+            panel.style.bottom = 'auto';
+
+            event.preventDefault();
+        });
+
+        document.addEventListener('mousemove', event => {
+            if (!isDragging) return;
+
+            const nextLeft = startLeft + event.clientX - startX;
+            const nextTop = startTop + event.clientY - startY;
+
+            panel.style.left = `${nextLeft}px`;
+            panel.style.top = `${nextTop}px`;
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
     }
 
     function updateAlertPanel(flags) {
