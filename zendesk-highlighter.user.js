@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      6.82
+// @version      6.83
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -1063,17 +1063,6 @@
 
         let sidebarEmail = cachedSidebarEmail || '';
 
-        console.log('OTHER EMAIL DEBUG', {
-            ticketId,
-            lastTicketId,
-            previousTicketId,
-            isNewTicket,
-            cachedSidebarEmail,
-            freshSidebarEmail,
-            lastSidebarEmail,
-            sidebarEmailBeforeDecision: sidebarEmail
-        });
-
         if (!sidebarEmail && freshSidebarEmail) {
 
             const sameCustomerHistoryTransition =
@@ -1082,16 +1071,6 @@
 
             const completelyNewCustomer =
                   freshSidebarEmail !== lastSidebarEmail;
-
-            console.log('OTHER EMAIL DECISION', {
-                ticketId,
-                freshSidebarEmail,
-                lastSidebarEmail,
-                isNewTicket,
-                sameCustomerHistoryTransition,
-                completelyNewCustomer,
-                willAcceptSidebarEmail: sameCustomerHistoryTransition || completelyNewCustomer
-            });
 
             if (
                 sameCustomerHistoryTransition ||
@@ -1182,16 +1161,6 @@
                             range.setEnd(textNode, otherEmailMatch.index + matchedText.length);
 
                             buckets.otherEmail.add(range);
-
-                            console.log('OTHER EMAIL ADDED', {
-                                ticketId,
-                                sidebarEmail,
-                                matchedText,
-                                normalizedFoundEmail,
-                                currentUrl: location.href,
-                                subject: document.querySelector('input[data-test-id="omni-header-subject"]')?.value || ''
-                            });
-                        }
 
                         if (ANY_EMAIL_REGEX.lastIndex === otherEmailMatch.index) {
                             ANY_EMAIL_REGEX.lastIndex++;
