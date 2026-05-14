@@ -1163,6 +1163,7 @@
                             range.setEnd(textNode, otherEmailMatch.index + matchedText.length);
 
                             buckets.otherEmail.add(range);
+                        }
 
                         if (ANY_EMAIL_REGEX.lastIndex === otherEmailMatch.index) {
                             ANY_EMAIL_REGEX.lastIndex++;
