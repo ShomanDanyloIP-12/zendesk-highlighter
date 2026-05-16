@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      6.94
+// @version      6.95
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -596,7 +596,8 @@
         "withdrawing from my contract",
         "cooling off",
         "legal right",
-        "Money Back Policy"
+        "Money Back Policy",
+        "unlink"
     ];
 
     const IGNORED_OTHER_EMAILS = new Set([
@@ -648,7 +649,9 @@
         'support@pdfvoicemails.zendesk.com',
         'support@resumeleader.com',
         'support@thebestpdf.com',
-        'suport@pdfguru.com'
+        'suport@pdfguru.com',
+        "mail@hello.pdfleader.com",
+        "support@solidgate.com"
     ]);
 
     function escapeRegex(str) {
