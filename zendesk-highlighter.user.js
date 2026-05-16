@@ -1070,26 +1070,13 @@
         let sidebarEmail = cachedSidebarEmail || '';
 
         if (!sidebarEmail && freshSidebarEmail) {
+            sidebarEmail = freshSidebarEmail;
 
-            const sameCustomerHistoryTransition =
-                  isNewTicket &&
-                  freshSidebarEmail === lastSidebarEmail;
-
-            const completelyNewCustomer =
-                  freshSidebarEmail !== lastSidebarEmail;
-
-            if (
-                sameCustomerHistoryTransition ||
-                completelyNewCustomer
-            ) {
-                sidebarEmail = freshSidebarEmail;
-
-                if (ticketId) {
-                    ticketEmailCache.set(ticketId, sidebarEmail);
-                }
-
-                lastSidebarEmail = sidebarEmail;
+            if (ticketId) {
+                ticketEmailCache.set(ticketId, sidebarEmail);
             }
+
+            lastSidebarEmail = sidebarEmail;
         }
 
         document.querySelectorAll('.zd-comment').forEach(commentEl => {
