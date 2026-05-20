@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      7.02
+// @version      7.03
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -604,7 +604,8 @@
         "cooling off",
         "legal right",
         "Money Back Policy",
-        "withdraw form my contract"
+        "withdraw form my contract",
+        "Eurepean"
     ];
 
     const IGNORED_OTHER_EMAILS = new Set([
