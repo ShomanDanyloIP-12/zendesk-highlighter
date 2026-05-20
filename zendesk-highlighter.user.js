@@ -561,7 +561,8 @@
         "Cancelation of account",
         "Cancel our account",
         "cancellation of this account",
-        "cancellation of my payment details"
+        "cancellation of my payment details",
+        "ELIMINAR M ICUENTA"
     ];
 
     const POLICIES_TRIGGERS = [
