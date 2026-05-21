@@ -394,7 +394,8 @@
         "call to bank",
         "share it with Paypal",
         "report on PayPal",
-        "instructed the card issuing bank"
+        "instructed the card issuing bank",
+        "Purchase Protection"
     ];
 
     const DATA_DELETION_TRIGGERS = [
@@ -563,7 +564,8 @@
         "cancellation of this account",
         "cancellation of my payment details",
         "ELIMINAR M ICUENTA",
-        "cancel my personal account"
+        "cancel my personal account",
+        "account is fully canceled"
     ];
 
     const POLICIES_TRIGGERS = [
