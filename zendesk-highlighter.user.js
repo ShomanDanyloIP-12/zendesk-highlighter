@@ -395,7 +395,8 @@
         "share it with Paypal",
         "report on PayPal",
         "instructed the card issuing bank",
-        "Purchase Protection"
+        "Purchase Protection",
+        "complaint with my cc"
     ];
 
     const DATA_DELETION_TRIGGERS = [
