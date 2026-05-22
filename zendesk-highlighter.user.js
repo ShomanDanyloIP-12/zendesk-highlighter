@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      7.11
+// @version      7.12
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -155,7 +155,12 @@
         "within a day",
         "According to your PayPal",
         "suicidal",
-        "suicide"
+        "suicide",
+        "TINA",
+        "TINA.org",
+        "Truth in Advertising",
+        "truthinadvertising",
+        "truthinadvertising.org"
     ];
 
     const G2_TRIGGERS = [
