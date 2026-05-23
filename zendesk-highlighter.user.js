@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      7.13
+// @version      7.14
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -574,7 +574,8 @@
         "account is fully canceled",
         "unsubscribe from this account",
         "credit card cancellation",
-        "CANCELLATION OF PAYMENT DATA"
+        "CANCELLATION OF PAYMENT DATA",
+        "cancellation of all data"
     ];
 
     const POLICIES_TRIGGERS = [
