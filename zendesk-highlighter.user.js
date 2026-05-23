@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      7.14
+// @version      7.15
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -401,7 +401,8 @@
         "report on PayPal",
         "instructed the card issuing bank",
         "Purchase Protection",
-        "complaint with my cc"
+        "complaint with my cc",
+        "report fraud"
     ];
 
     const DATA_DELETION_TRIGGERS = [
