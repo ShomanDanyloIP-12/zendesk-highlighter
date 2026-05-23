@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      7.16
+// @version      7.17
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -37,6 +37,7 @@
     const G1_TRIGGERS = [
         "Competition and Consumer Commission",
         "ACCC",
+        "Competition and Market Authority",
         "Authority for Consumers and Markets",
         "ACM",
         "Scamwatch",
