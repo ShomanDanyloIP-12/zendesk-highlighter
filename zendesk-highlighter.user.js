@@ -161,7 +161,8 @@
         "TINA.org",
         "Truth in Advertising",
         "truthinadvertising",
-        "truthinadvertising.org"
+        "truthinadvertising.org",
+        "EU Consumer Protection Centre"
     ];
 
     const G2_TRIGGERS = [
