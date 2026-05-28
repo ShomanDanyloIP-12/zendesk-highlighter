@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      7.33
+// @version      7.34
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -410,7 +410,8 @@
         "reclaim ammount at paypal",
         "I will reclaim ammount",
         "bank's legal department",
-        "bank take care"
+        "bank take care",
+        "case in paypal"
     ];
 
     const DATA_DELETION_TRIGGERS = [
