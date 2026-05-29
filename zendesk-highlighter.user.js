@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      7.36
+// @version      7.37
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -645,7 +645,8 @@
         "right to regret",
         "have 14 days",
         "14-day right",
-        'withdrawing from the contract'
+        'withdrawing from the contract',
+        "period of 14 days"
     ];
 
     const IGNORED_OTHER_EMAILS = new Set([
