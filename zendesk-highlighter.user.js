@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      7.56
+// @version      7.57
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -162,7 +162,8 @@
         "Truth in Advertising",
         "truthinadvertising",
         "truthinadvertising.org",
-        "EU Consumer Protection Centre"
+        "EU Consumer Protection Centre",
+        "consumer advice centre"
     ];
 
     const G2_TRIGGERS = [
