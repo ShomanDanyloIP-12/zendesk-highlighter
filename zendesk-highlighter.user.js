@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      7.57
+// @version      7.58
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -612,7 +612,8 @@
         "löschen",
         "cancel my payment/account",
         "cancel my account",
-        "get rid of"
+        "get rid of",
+        "account is indeed deactivated"
     ];
 
     const POLICIES_TRIGGERS = [
