@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      7.69
+// @version      7.70
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -622,7 +622,8 @@
         "Get me out of your system",
         "Cancelar cuenta",
         "closed",
-        "removes the payment method"
+        "removes the payment method",
+        "de baja mi cuenta"
     ];
 
     const POLICIES_TRIGGERS = [
