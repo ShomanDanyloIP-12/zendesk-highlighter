@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      7.72
+// @version      7.73
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -625,7 +625,8 @@
         "closed",
         "removes the payment method",
         "de baja mi cuenta",
-        "cancel my billing account"
+        "cancel my billing account",
+        "wipe"
     ];
 
     const POLICIES_TRIGGERS = [
