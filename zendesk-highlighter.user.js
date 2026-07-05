@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      7.77
+// @version      7.78
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -686,7 +686,8 @@
         "of 14 days",
         "14 days to get the refund",
         "withdrawal letter",
-        "right to withdrawal"
+        "right to withdrawal",
+        "withdrawel from"
     ];
 
     const IGNORED_OTHER_EMAILS = new Set([
