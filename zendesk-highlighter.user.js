@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      7.86
+// @version      7.87
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -40,6 +40,7 @@
         "Competition and Market Authority",
         "Authority for Consumers and Markets",
         "ACM",
+        "European Consumer Centre",
         "Scamwatch",
         "National Anti-Scam Centre",
         "NASC",
