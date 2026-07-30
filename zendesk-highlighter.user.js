@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      7.92
+// @version      7.93
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -642,7 +642,8 @@
         "Cancele mi cuenta",
         "cancell the account",
         "usunięcie konta",
-        "dati siano cancellati"
+        "dati siano cancellati",
+        "xoá tài khoản"
     ];
 
     const POLICIES_TRIGGERS = [
