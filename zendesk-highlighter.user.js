@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      7.95
+// @version      7.96
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -256,6 +256,7 @@
         "escalate this matter through my credit card",
         "Report as scam",
         "Report as fraud",
+        "called the bank",
         "make a dispute",
         "Make a chargeback",
         "Contact my bank",
