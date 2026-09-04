@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      8.05
+// @version      8.06
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -166,7 +166,11 @@
         "EU Consumer Protection Centre",
         "consumer advice centre",
         "CCPS",
-        "Cyprus Consumer Protection Service"
+        "Cyprus Consumer Protection Service",
+        "National Life Center",
+        "NLC",
+        "National Life Center in Japan",
+        "Lithuanian State Consumer Rights Protection Authority"
     ];
 
     const G2_TRIGGERS = [
