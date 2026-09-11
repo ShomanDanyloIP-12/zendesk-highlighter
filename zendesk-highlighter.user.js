@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      8.08
+// @version      8.09
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -431,7 +431,8 @@
         "notifying my bank",
         "file a fraud complaint",
         "file an objection",
-        "reported it as fraud"
+        "reported it as fraud",
+        "report it to bank"
     ];
 
     const DATA_DELETION_TRIGGERS = [
