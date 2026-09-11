@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      8.07
+// @version      8.08
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -170,7 +170,8 @@
         "National Life Center",
         "NLC",
         "National Life Center in Japan",
-        "Lithuanian State Consumer Rights Protection Authority"
+        "Lithuanian State Consumer Rights Protection Authority",
+        "Consumer Protection Service of Cyprus"
     ];
 
     const G2_TRIGGERS = [
