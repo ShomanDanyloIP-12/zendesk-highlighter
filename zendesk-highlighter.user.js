@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      8.09
+// @version      8.10
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -779,7 +779,8 @@
         'suport@pdfguru.com',
         "mail@hello.pdfleader.com",
         "support@solidgate.com",
-        "tech@thebestpdf.com"
+        "tech@thebestpdf.com",
+        "tech@pdfleader.com"
     ]);
 
     function escapeRegex(str) {
