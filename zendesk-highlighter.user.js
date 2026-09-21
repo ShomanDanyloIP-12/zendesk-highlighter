@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Zendesk Highlighter (Safe Mode + Subject)
 // @namespace    http://tampermonkey.net/
-// @version      8.11
+// @version      8.12
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @grant        none
@@ -664,7 +664,8 @@
         "termination of any account",
         "cancel my data",
         "cease any subscription or account",
-        "close this account"
+        "close this account",
+        "data deactivated"
     ];
 
     const POLICIES_TRIGGERS = [
