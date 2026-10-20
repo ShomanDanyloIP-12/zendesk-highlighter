@@ -1,16 +1,14 @@
 // ==UserScript==
-// @name         Zendesk Highlighter (Safe Mode + Subject)
-// @namespace    http://tampermonkey.net/
-// @version      9.0
+// @name         Zendesk Highlighter Forma
+// @namespace    urn:zendesk-highlighter:forma
+// @version      9.01
+// @updateURL    none
+// @downloadURL  none
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @match        https://hub.solidgate.com/payments/order*
 // @grant        GM.getValue
 // @grant        GM.setValue
-// @downloadURL  https://raw.githubusercontent.com/ShomanDanyloIP-12/zendesk-highlighter/main/zendesk-highlighter.user.js
-// @updateURL    https://raw.githubusercontent.com/ShomanDanyloIP-12/zendesk-highlighter/main/zendesk-highlighter.user.js
-// @homepageURL  https://github.com/ShomanDanyloIP-12/zendesk-highlighter
-// @supportURL   https://github.com/ShomanDanyloIP-12/zendesk-highlighter/issues
 // ==/UserScript==
 
 (function () {
@@ -109,13 +107,13 @@
         const product = getCurrentProduct();
         const countries = getVisibleCountries();
 
-        const hasUkraine = countries.includes('UKR');
+        const hasGlobalBlackCountry = countries.includes('UKR') || countries.includes('USA');
         const hasBlackCountry = countries.some(country => BLACK_COUNTRIES.has(country));
         const hasYellowCountry = countries.some(country => YELLOW_COUNTRIES.has(country));
 
-        // UKR forces the global black segment, including on red-segment products.
+        // UKR and USA force the global black segment, including on red-segment products.
         // Keep this before product rules: mixed-country fields depend on it.
-        if (hasUkraine) {
+        if (hasGlobalBlackCountry) {
             return 'black';
         }
 
@@ -174,7 +172,7 @@
 
             if (!segment || !country) return;
 
-            if (country === 'UKR') {
+            if (country === 'UKR' || country === 'USA') {
                 applyStyle(el, 'black');
                 return;
             }
