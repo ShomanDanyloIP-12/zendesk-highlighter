@@ -1,14 +1,16 @@
 // ==UserScript==
-// @name         Zendesk Highlighter Forma
-// @namespace    urn:zendesk-highlighter:forma
-// @version      9.01
-// @updateURL    none
-// @downloadURL  none
+// @name         Zendesk Highlighter (Safe Mode + Subject)
+// @namespace    http://tampermonkey.net/
+// @version      9.1
 // @description  Highlight key phrases in comments and ticket subject securely without breaking HTML
 // @match        https://*.zendesk.com/*
 // @match        https://hub.solidgate.com/payments/order*
 // @grant        GM.getValue
 // @grant        GM.setValue
+// @downloadURL  https://raw.githubusercontent.com/ShomanDanyloIP-12/zendesk-highlighter/main/zendesk-highlighter.user.js
+// @updateURL    https://raw.githubusercontent.com/ShomanDanyloIP-12/zendesk-highlighter/main/zendesk-highlighter.user.js
+// @homepageURL  https://github.com/ShomanDanyloIP-12/zendesk-highlighter
+// @supportURL   https://github.com/ShomanDanyloIP-12/zendesk-highlighter/issues
 // ==/UserScript==
 
 (function () {
@@ -4902,3 +4904,4 @@
     setTimeout(scanAll, 1500);
     setTimeout(scanAll, 3000);
 })();
+
